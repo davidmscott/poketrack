@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PokéTrack</title>
+	<script
+		src="https://code.jquery.com/jquery-3.1.0.min.js"
+		integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s="
+		crossorigin="anonymous"
+	></script>
+	<script>
+
+	function showAllPokemon() {
+		console.log("showing Pokemon");
+		$.get(
+			'/sighting',
+			function(data){
+				$('#output').html("");
+				for (var i = 0; i < data.length; i++) {
+					$('#output').append('<p>' + data[i].pokemonId + " " + data[i].locStr + '</p>');
+				}
+			}, "json"
+		);
+	}
+
+	function sendPokemon() {
+		console.log("sending Pokemon");
+		$.post(
+			'/sighting',
+			{
+				locStr: $('#locStr').val(),
+				pokemonId: $('#pokemonId').val()
+			},
+			function(data){
+				if (data == "success") {
+					showAllPokemon();
+				}
+			}
+		);
+	}
+
+	function logout() {
+		console.log("logging out");
+		$.get("/logout", function(data) {
+			if (data === "success") {
+				document.location = "/";
+			} else {
+				alert("error");
+			}
+		});
+	}
+
+	// function search() {
+	// 	$.get("/sighting", function(data) {
+	// 		$("#output").html("");
+	// 		var searchResults = [];
+	// 		if ($("#locStr").val()) {
+	// 			if ($("#pokemonId").val()) {
+	// 				searchResults = data.filter(function(sighting) {
+	// 					return sighting.locStr === $("#locStr").val() && sighting.pokemonId === $("#pokemonId").val();
+	// 				});
+	// 			} else {
+	// 				searchResults = data.filter(function(sighting) {
+	// 					return sighting.locStr === $("#locStr").val();
+	// 				});
+	// 			}
+	// 		} else if ($("#pokemonId").val()) {
+	// 			searchResults = data.filter(function(sighting) {
+	// 				return sighting.pokemonId === $("#pokemonId").val();
+	// 			});
+	// 		}
+	// 	for (var i = 0; i < searchResults.length; i++) {
+	// 		$('#output').append('<p>' + searchResults[i].pokemonId + " " + searchResults[i].locStr + '</p>');
+	// 	}
+	// 	}, "json"
+	// 	);
+	// }
+
+	function search2() {
+		$.get(
+			"/search",
+			{
+				location: $("#locStr").val(),
+				pokemon: $("#pokemonId").val()
+			},
+			function(data) {
+				if (data) {
+					$('#output').html("");
+					for (var i = 0; i < data.length; i++) {
+					$('#output').append('<p>' + data[i].pokemonId + " " + data[i].locStr + '</p>');
+					}
+				}
+			}, "json"
+		);
+	}
+
+	$(document).ready(function() {
+		showAllPokemon();
+		$('#submit').click(sendPokemon);
+		$("#logout").click(logout);
+		$("#search").click(search2);
+	});
+
+
+	</script>
+</head>
+<body>
+	<label for="locStr">Location: <input type="text" id="locStr"></label>
+	<label for="pokemonId">Pokemon: <input type="text" id="pokemonId"></label>
+	<input type="button" id="submit" value="Post Sighting">
+	<input type="button" id="search" value="search">
+	<input type="button" id="logout" value="Logout">
+	<div id="output"></div>
+</body>
+</html>
